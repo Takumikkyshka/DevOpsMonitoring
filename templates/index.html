@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Звонок Токсису</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Возьми телефон, детка, я знаю, ты хочешь позвонить мне</h1>
+    <img src="{{ url_for('static', filename='meme.jpg') }}" alt="Моя лиса">
+    <p>Количество звонков: <span id="likeCount">{{ likes }}</span></p>
+    <button onclick="sendLike()">Позвонить</button>
+    <p><small>Страница обновлена {{ views }} раз(а)</small></p>
+
+    <script>
+        // объявляем асинхронную функцию sendLike, которая будет вызвана при нажатии на кнопку
+        async function sendLike() {
+            // отправляем POST-запрос на сервер по адресу '/like' и ждём ответа
+            const response = await fetch('/like', { method: 'POST' });
+
+            // извлекаем из ответа сервера JSON-данные
+            const data = await response.json();
+
+            // находим на странице элемент с id="likeCount"
+            // и заменяем его текст на новое значение лайков из data.likes
+            document.getElementById('likeCount').innerText = data.likes;
+        }
+    </script>
+</body>
+</html>
