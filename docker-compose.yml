@@ -1,0 +1,32 @@
+services: #начало описание контейнеров. их будет 2
+  python-app:
+    build: . #собрать образ из dockerfile нужно в текущей директории
+    ports:
+      - "8000:8000" #проброс портов: хост:контейнер
+    volumes: #монтируем файлы и папки с хоста внутрь контейнера
+      - ./app.py:/app/app.py
+      - ./templates:/app/templates
+      - ./static:/app/static
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:latest #используем готовый образ с docker hub
+    ports:
+      - "9090:9090" #проброс порта 9090 хоста на 9090 контейнера
+    volumes: #монтируем конфигурацию и том для данных
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command: #команды, передаваемые при запуске Prometheus
+      - '--config.file=/etc/prometheus/prometheus.yml' #путь к конфигу
+      - '--storage.tsdb.path=/prometheus' #путь к хранилищу данных
+    restart: unless-stopped #политика перезапуска: не перезапускать, если остановлен вручную
+    networks:
+      - monitoring
+
+volumes: #объявление томов
+  prometheus-data: #том для данных prometheus (чтобы не терялись при пересоздании контейнера)
+
+networks:
+  monitoring:
+    driver: bridge #используем стандартный bridge-драйвер docker
